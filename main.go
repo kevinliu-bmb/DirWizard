@@ -74,15 +74,15 @@ func displayMenu() {
 func executeChoice(choice string) {
     switch choice {
     case "1":
-        runScript("./rename_directories.sh")
+        runScript("./src/rename_directories.sh")
     case "2":
-        runScript("./check_compliance.sh")
+        runScript("./src/check_compliance.sh")
     case "3":
-        runScript("./find_duplicates.sh")
+        runScript("./src/find_duplicates.sh")
     case "4":
-        runScript("./generate_mock_structure.sh")
+        runScript("./src/generate_mock_structure.sh")
     case "5":
-        runScript("./clear_mock_structure.sh")
+        runScript("./src/clear_mock_structure.sh")
     default:
         fmt.Println("Invalid choice. Please try again.")
     }
