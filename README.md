@@ -1,6 +1,6 @@
 # DirWizard CLI
 
-`DirWizard` is a command-line interface (CLI) tool developed by Kevin Liu, designed to simplify file system operations such as renaming directories, checking directory naming compliance, finding duplicate directories, and more. It provides an easy-to-use interface for interacting with traditional Linux CLI tools and shell scripts.
+`DirWizard` is a command-line interface (CLI) tool designed to simplify file system operations such as renaming directories, checking directory naming compliance, finding duplicate directories, and more. It provides an easy-to-use interface for interacting with traditional Linux CLI tools and shell scripts.
 
 ## Features
 
