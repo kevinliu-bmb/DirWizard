@@ -32,14 +32,31 @@ function rename_dirs() {
         # Transform the directory name
         local new_dir_name=$(echo "$dir_name" | tr '[:upper:]' '[:lower:]' | tr -s ' -' '_' | sed 's/^_\+//; s/_\+$//')
 
-        # If the transformed name is different, rename the directory
+        # If the transformed name is different, ask the user if directory should be renamed
         if [[ "$dir_name" != "$new_dir_name" ]]; then
-            local new_dir_path="${base_dir}/${new_dir_name}"
-            mv "$dir" "$new_dir_path" 2>>"$LOG_FILE" && echo "Renamed: $dir -> $new_dir_path" >> "$LOG_FILE"
+            while true; do
+                echo -n "Rename directory $dir_name to $new_dir_name? (y/n): "
+                read -r answer < /dev/tty
+                case $answer in
+                    [Yy]* )
+                        echo "Renaming directory $dir_name to $new_dir_name"
+                        local new_dir_path="${base_dir}/${new_dir_name}"
+                        mv "$dir" "$new_dir_path" 2>>"$LOG_FILE" && echo "Renamed: $dir -> $new_dir_path" >> "$LOG_FILE"
+                        break
+                        ;;
+                    [Nn]* )
+                        echo "Skipping $dir_name"
+                        break
+                        ;;
+                    * )
+                        echo "Please answer yes (y) or no (n)."
+                        ;;
+                esac
+            done
         fi
     done
 }
 
-
-
 rename_dirs "$BASE_DIR"
+echo
+echo "[Rename directory processed successfully]"

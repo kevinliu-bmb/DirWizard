@@ -20,3 +20,5 @@ BASE_DIR=".."
 
 # delete the folder mock_directory
 rm -rf $BASE_DIR/mock_directory
+echo
+echo "[Mock directory deleted successfully]"

@@ -51,3 +51,5 @@ find_duplicates
 
 # Clean up
 rm "$TEMP_FILE"
+echo
+echo "[Find duplicate directories processed successfully]"

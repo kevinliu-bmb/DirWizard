@@ -33,3 +33,5 @@ function check_compliance() {
 }
 
 check_compliance "$BASE_DIR"
+echo
+echo "[Check directory compliance processed successfully]"

@@ -67,6 +67,7 @@ function create_mock_structure() {
     touch "$MOCK_DIR/DuplicateDirCopy/Child1/file11.txt"
     touch "$MOCK_DIR/DuplicateDirCopy/Child2/file12.txt"
 
+    echo
     echo "Mock file structure created at $MOCK_DIR"
 }
 
