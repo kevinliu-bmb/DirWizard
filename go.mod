@@ -1,0 +1,3 @@
+module DirWizard
+
+go 1.21.6
