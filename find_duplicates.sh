@@ -17,7 +17,7 @@
 # along with DirWizard.  If not, see <http://www.gnu.org/licenses/>.
 
 BASE_DIR=".."
-LOG_DIR="${BASE_DIR}/log"
+LOG_DIR="./log"
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 LOG_FILE="${LOG_DIR}/duplicates_log_${TIMESTAMP}.txt"
 TEMP_FILE="${LOG_DIR}/temp_signatures_${TIMESTAMP}.txt"

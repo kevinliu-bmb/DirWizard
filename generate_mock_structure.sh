@@ -18,7 +18,7 @@
 
 BASE_DIR=".."
 MOCK_DIR="${BASE_DIR}/mock_directory"
-LOG_DIR="${BASE_DIR}/log"
+LOG_DIR="./log"
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 LOG_FILE="${LOG_DIR}/mock_generation_log_${TIMESTAMP}.txt"
 
