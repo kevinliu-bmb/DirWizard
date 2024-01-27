@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -32,68 +33,98 @@ func main() {
     for {
         displayMenu()
         fmt.Print("Enter your choice (or 0 to exit): ")
-        choices, _ := reader.ReadString('\n')
-        choices = strings.TrimSpace(choices)
+        choice, err := reader.ReadString('\n')
+        if err != nil {
+            fmt.Println("Error reading choice:", err)
+            continue
+        }
+        choice = strings.TrimSpace(choice)
 
-        if choices == "0" {
-            fmt.Println("[Exiting DirWizard CLI]")
+        if choice == "0" {
+            fmt.Println("\n[Exiting DirWizard CLI]")
             break
         }
 
-        executeChoice(choices)
+        executeChoice(choice, reader)
     }
 }
 
 func clearScreen() {
-    cmd := exec.Command("clear") // For Windows, use exec.Command("cmd", "/c", "cls")
+    var cmd *exec.Cmd
+    if runtime.GOOS == "windows" {
+        cmd = exec.Command("cmd", "/c", "cls")
+    } else {
+        cmd = exec.Command("clear")
+    }
     cmd.Stdout = os.Stdout
     cmd.Run()
 }
 
 func displayHeader() {
-    fmt.Println("================================")
-    fmt.Println("|     DirWizard CLI            |")
-    fmt.Println("|     Developed by Kevin Liu   |")
-    fmt.Println("================================")
+    fmt.Println("=================================================")
+    fmt.Println("|         DirWizard - Directory Management      |")
+    fmt.Println("|         Version 0.1.0                         |")
+    fmt.Println("|         © 2024 Kevin Liu. All Rights Reserved |")
+    fmt.Println("=================================================")
+    fmt.Println("Welcome to DirWizard, your go-to tool for efficient")
+    fmt.Println("directory management and data organization.")
+    fmt.Println()
 }
 
 func displayMenu() {
-    fmt.Println()
     fmt.Println("Menu:")
     fmt.Println("1 - Rename Directories")
     fmt.Println("2 - Check Compliance")
     fmt.Println("3 - Find Duplicates")
+    fmt.Println("4 - Search Data Paths")
     fmt.Println()
-    fmt.Println("4 - [dev test] Generate Mock File Structure")
-    fmt.Println("5 - [dev test] Clear Mock File Structure")
+    fmt.Println("5 - [dev test] Generate Mock File Structure")
+    fmt.Println("6 - [dev test] Clear Mock File Structure")
     fmt.Println()
     fmt.Println("0 - Exit")
     fmt.Println()
 }
 
-func executeChoice(choice string) {
-    switch choice {
-    case "1":
-        runScript("./src/rename_directories.sh")
-    case "2":
-        runScript("./src/check_compliance.sh")
-    case "3":
-        runScript("./src/find_duplicates.sh")
-    case "4":
-        runScript("./src/generate_mock_structure.sh")
-    case "5":
-        runScript("./src/clear_mock_structure.sh")
-    default:
-        fmt.Println("Invalid choice. Please try again.")
+func executeChoice(choice string, reader *bufio.Reader) {
+    if !runScript(choice) {
+        fmt.Println("\nInvalid choice. Please try again.")
     }
+
+    fmt.Println("\nPress Enter to continue...")
+    _, err := reader.ReadString('\n')
+    if err != nil {
+        fmt.Println("Error reading input:", err)
+    }
+    clearScreen()
+    displayHeader()
 }
 
-func runScript(scriptName string) {
+func runScript(choice string) bool {
+    var scriptName string
+    switch choice {
+    case "1":
+        scriptName = "./src/rename_directories.sh"
+    case "2":
+        scriptName = "./src/check_compliance.sh"
+    case "3":
+        scriptName = "./src/find_duplicates.sh"
+    case "4":
+        scriptName = "./src/search_data_paths.sh"
+    case "5":
+        scriptName = "./src/generate_mock_structure.sh"
+    case "6":
+        scriptName = "./src/clear_mock_structure.sh"
+    default:
+        return false
+    }
+
     cmd := exec.Command("bash", scriptName)
     cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
     err := cmd.Run()
     if err != nil {
         fmt.Println("Error executing script:", scriptName, "-", err)
+        return false
     }
+    return true
 }
