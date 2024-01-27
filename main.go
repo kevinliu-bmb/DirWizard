@@ -28,17 +28,65 @@ import (
 func main() {
     clearScreen()
     displayHeader()
-    reader := bufio.NewReader(os.Stdin)
+    processUserInput()
+}
 
+func clearScreen() {
+    if runtime.GOOS == "windows" {
+        executeCommand("cmd", "/c", "cls")
+    } else {
+        executeCommand("clear")
+    }
+}
+
+func executeCommand(name string, arg ...string) {
+    cmd := exec.Command(name, arg...)
+    cmd.Stdout = os.Stdout
+    err := cmd.Run()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error executing command %s: %v\n", name, err)
+    }
+}
+
+func displayHeader() {
+    header := `=================================================
+|         DirWizard - Directory Management      |
+|         Version 0.1.0                         |
+|         © 2024 Kevin Liu. All Rights Reserved |
+=================================================
+Welcome to DirWizard, your go-to tool for efficient
+directory management and data organization.
+
+`
+    fmt.Print(header)
+}
+
+func displayMenu() {
+    menu := `Options:
+
+(1) - Rename Directories
+(2) - Check Compliance
+(3) - Find Duplicates
+(4) - Search Data Paths
+
+(5) - [dev test] Generate Mock File Structure
+(6) - [dev test] Clear Mock File Structure
+
+(0) - Exit
+
+`
+    fmt.Print(menu)
+}
+
+func processUserInput() {
+    reader := bufio.NewReader(os.Stdin)
     for {
         displayMenu()
-        fmt.Print("Enter your choice (or 0 to exit): ")
-        choice, err := reader.ReadString('\n')
+        choice, err := readUserChoice(reader)
         if err != nil {
             fmt.Println("Error reading choice:", err)
             continue
         }
-        choice = strings.TrimSpace(choice)
 
         if choice == "0" {
             fmt.Println("\n[Exiting DirWizard CLI]")
@@ -49,40 +97,13 @@ func main() {
     }
 }
 
-func clearScreen() {
-    var cmd *exec.Cmd
-    if runtime.GOOS == "windows" {
-        cmd = exec.Command("cmd", "/c", "cls")
-    } else {
-        cmd = exec.Command("clear")
+func readUserChoice(reader *bufio.Reader) (string, error) {
+    fmt.Print("Enter your choice (or 0 to exit): ")
+    choice, err := reader.ReadString('\n')
+    if err != nil {
+        return "", err
     }
-    cmd.Stdout = os.Stdout
-    cmd.Run()
-}
-
-func displayHeader() {
-    fmt.Println("=================================================")
-    fmt.Println("|         DirWizard - Directory Management      |")
-    fmt.Println("|         Version 0.1.0                         |")
-    fmt.Println("|         © 2024 Kevin Liu. All Rights Reserved |")
-    fmt.Println("=================================================")
-    fmt.Println("Welcome to DirWizard, your go-to tool for efficient")
-    fmt.Println("directory management and data organization.")
-    fmt.Println()
-}
-
-func displayMenu() {
-    fmt.Println("Menu:")
-    fmt.Println("1 - Rename Directories")
-    fmt.Println("2 - Check Compliance")
-    fmt.Println("3 - Find Duplicates")
-    fmt.Println("4 - Search Data Paths")
-    fmt.Println()
-    fmt.Println("5 - [dev test] Generate Mock File Structure")
-    fmt.Println("6 - [dev test] Clear Mock File Structure")
-    fmt.Println()
-    fmt.Println("0 - Exit")
-    fmt.Println()
+    return strings.TrimSpace(choice), nil
 }
 
 func executeChoice(choice string, reader *bufio.Reader) {
@@ -90,6 +111,39 @@ func executeChoice(choice string, reader *bufio.Reader) {
         fmt.Println("\nInvalid choice. Please try again.")
     }
 
+    waitForContinue(reader)
+}
+
+func runScript(choice string) bool {
+    scriptName := getScriptName(choice)
+    if scriptName == "" {
+        return false
+    }
+
+    executeCommand("bash", scriptName)
+    return true
+}
+
+func getScriptName(choice string) string {
+    switch choice {
+    case "1":
+        return "./src/rename_directories.sh"
+    case "2":
+        return "./src/check_compliance.sh"
+    case "3":
+        return "./src/find_duplicates.sh"
+    case "4":
+        return "./src/search_data_paths.sh"
+    case "5":
+        return "./src/generate_mock_structure.sh"
+    case "6":
+        return "./src/clear_mock_structure.sh"
+    default:
+        return ""
+    }
+}
+
+func waitForContinue(reader *bufio.Reader) {
     fmt.Println("\nPress Enter to continue...")
     _, err := reader.ReadString('\n')
     if err != nil {
@@ -97,34 +151,4 @@ func executeChoice(choice string, reader *bufio.Reader) {
     }
     clearScreen()
     displayHeader()
-}
-
-func runScript(choice string) bool {
-    var scriptName string
-    switch choice {
-    case "1":
-        scriptName = "./src/rename_directories.sh"
-    case "2":
-        scriptName = "./src/check_compliance.sh"
-    case "3":
-        scriptName = "./src/find_duplicates.sh"
-    case "4":
-        scriptName = "./src/search_data_paths.sh"
-    case "5":
-        scriptName = "./src/generate_mock_structure.sh"
-    case "6":
-        scriptName = "./src/clear_mock_structure.sh"
-    default:
-        return false
-    }
-
-    cmd := exec.Command("bash", scriptName)
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
-    err := cmd.Run()
-    if err != nil {
-        fmt.Println("Error executing script:", scriptName, "-", err)
-        return false
-    }
-    return true
 }
