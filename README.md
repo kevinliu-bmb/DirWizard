@@ -1,14 +1,20 @@
 # DirWizard CLI
 
-`DirWizard` is a command-line interface (CLI) tool designed to simplify file system operations such as renaming directories, checking directory naming compliance, finding duplicate directories, and more. It provides an easy-to-use interface for interacting with traditional Linux CLI tools and shell scripts.
+`DirWizard` is a command-line interface (CLI) tool designed to simplify file system operations such as renaming directories, checking directory naming compliance, finding duplicate directories, searching data paths, and more. It provides an easy-to-use interface for interacting with traditional Linux CLI tools and shell scripts.
 
 ## Features
 
 - **Rename Directories:** Convert all upper-case characters to lower-case, replace spaces and dashes with underscores, and clean up leading/trailing characters.
 - **Check Compliance:** Verify directory naming conventions and log any non-compliant directory names.
 - **Find Duplicates:** Identify and log duplicate directories based on file and directory names.
+- **Search Data Paths:** Locate and log directories containing specific types of data files, including the count of each data type.
 - **Generate Mock File Structure:** For testing purposes, create a mock file structure with various directory and file names.
 - **Clear Mock File Structure:** Remove the generated mock file structure.
+
+## Recent Updates
+
+- **Bug Fix:** Resolved an issue where the CLI did not prompt the user to hit Enter after invalid selections, improving the overall user interaction flow.
+- **Enhanced Data Path Search:** The tool now logs the type and count of data files in each found directory, providing more detailed insights into the data distribution.
 
 ## Getting Started
 
