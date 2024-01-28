@@ -26,51 +26,64 @@ import (
 	"strings"
 )
 
-var workingDir string
-
 func main() {
-    clearScreen()
-    var err error
-    workingDir, err = filepath.Abs(".")
-    if err != nil {
-        fmt.Println("Error getting current directory:", err)
-        return
-    }
-    displayHeader()
-    processUserInput()
+	dirWizard := NewDirWizard()
+	dirWizard.Run()
 }
 
-func clearScreen() {
-    if runtime.GOOS == "windows" {
-        executeCommand("cmd", "/c", "cls")
-    } else {
-        executeCommand("clear")
-    }
+type DirWizard struct {
+	workingDir string
+	reader     *bufio.Reader
 }
 
-func executeCommand(name string, arg ...string) {
-    cmd := exec.Command(name, arg...)
-    cmd.Stdout = os.Stdout
-    err := cmd.Run()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error executing command %s: %v\n", name, err)
-    }
+func NewDirWizard() *DirWizard {
+	return &DirWizard{
+		reader: bufio.NewReader(os.Stdin),
+	}
 }
 
-func displayHeader() {
-    header := fmt.Sprintf(`=================================================
+func (dw *DirWizard) Run() {
+	dw.clearScreen()
+	var err error
+	dw.workingDir, err = filepath.Abs(".")
+	if err != nil {
+		fmt.Println("Error getting current directory:", err)
+		return
+	}
+	dw.displayHeader()
+	dw.processUserInput()
+}
+
+func (dw *DirWizard) clearScreen() {
+	if runtime.GOOS == "windows" {
+		dw.executeCommand("cmd", "/c", "cls")
+	} else {
+		dw.executeCommand("clear")
+	}
+}
+
+func (dw *DirWizard) executeCommand(name string, arg ...string) {
+	cmd := exec.Command(name, arg...)
+	cmd.Stdout = os.Stdout
+	if err := cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error executing command %s: %v\n", name, err)
+	}
+}
+
+func (dw *DirWizard) displayHeader() {
+	header := fmt.Sprintf(`=================================================
 |         DirWizard - Directory Management      |
 |         Version 0.1.0                         |
 |         © 2024 Kevin Liu. All Rights Reserved |
 =================================================
 Working Directory: %s
 
-`, filepath.Clean(workingDir))
-    fmt.Print(header)
+`, filepath.Clean(dw.workingDir))
+	fmt.Print(header)
 }
 
-func displayMenu() {
-    menu := `Options:
+func (dw *DirWizard) displayMenu() {
+	menu := `Options:
 
 (1) - Rename Directories
 (2) - Check Compliance
@@ -85,102 +98,95 @@ func displayMenu() {
 (0) - Exit
 
 `
-    fmt.Print(menu)
+	fmt.Print(menu)
 }
 
-func processUserInput() {
-    reader := bufio.NewReader(os.Stdin)
-    for {
-        displayMenu()
-        choice, err := readUserChoice(reader)
-        if err != nil {
-            fmt.Println("Error reading choice:", err)
-            continue
-        }
+func (dw *DirWizard) processUserInput() {
+	for {
+		dw.displayMenu()
+		choice, err := dw.readUserChoice()
+		if err != nil {
+			fmt.Println("Error reading choice:", err)
+			continue
+		}
 
-        if choice == "0" {
-            fmt.Println("\n[Exiting DirWizard CLI]")
-            break
-        }
+		if choice == "0" {
+			fmt.Println("\n[Exiting DirWizard CLI]")
+			break
+		}
 
-        executeChoice(choice, reader)
-    }
+		dw.executeChoice(choice)
+	}
 }
 
-func readUserChoice(reader *bufio.Reader) (string, error) {
-    fmt.Print("Enter your choice (or 0 to exit): ")
-    choice, err := reader.ReadString('\n')
-    if err != nil {
-        return "", err
-    }
-    return strings.TrimSpace(choice), nil
+func (dw *DirWizard) readUserChoice() (string, error) {
+	fmt.Print("Enter your choice (or 0 to exit): ")
+	choice, err := dw.reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(choice), nil
 }
 
-func executeChoice(choice string, reader *bufio.Reader) {
-    if choice == "7" {
-        workingDir = getWorkingDirectory()
-        clearScreen()
-        displayHeader()
-        return
-    }
-    if !runScript(choice) {
-        fmt.Println("\nInvalid choice. Please try again.")
-    }
+func (dw *DirWizard) executeChoice(choice string) {
+	if choice == "7" {
+		dw.workingDir = dw.getWorkingDirectory()
+		dw.clearScreen()
+		dw.displayHeader()
+		return
+	}
+	if !dw.runScript(choice) {
+		fmt.Println("\nInvalid choice. Please try again.")
+	}
 
-    waitForContinue(reader)
+	dw.waitForContinue()
 }
 
-func getWorkingDirectory() string {
-    reader := bufio.NewReader(os.Stdin)
-    fmt.Print("Enter the directory path to work on: ")
-    dirPath, _ := reader.ReadString('\n')
-    dirPath = strings.TrimSpace(dirPath)
-
-    // Convert the provided directory path to an absolute path
-    absDirPath, err := filepath.Abs(dirPath)
-    if err != nil {
-        fmt.Println("Error converting to absolute path:", err)
-        return dirPath // fallback to the original input
-    }
-    return absDirPath
+func (dw *DirWizard) getWorkingDirectory() string {
+	fmt.Print("Enter the directory path to work on: ")
+	dirPath, _ := dw.reader.ReadString('\n')
+	dirPath = strings.TrimSpace(dirPath)
+	absDirPath, err := filepath.Abs(dirPath)
+	if err != nil {
+		fmt.Println("Error converting to absolute path:", err)
+		return dirPath // fallback to the original input
+	}
+	return absDirPath
 }
 
-func runScript(choice string) bool {
-    scriptName := getScriptName(choice)
-    if scriptName == "" {
-        return false
-    }
-
-    executeCommand("bash", scriptName, workingDir)
-    return true
+func (dw *DirWizard) runScript(choice string) bool {
+	scriptName := dw.getScriptName(choice)
+	if scriptName == "" {
+		return false
+	}
+	dw.executeCommand("bash", scriptName, dw.workingDir)
+	return true
 }
 
-func getScriptName(choice string) string {
-    switch choice {
-    case "1":
-        return "./pkg/scripts/rename_dir.sh"
-    case "2":
-        return "./pkg/scripts/check_dir.sh"
-    case "3":
-        return "./pkg/scripts/find_duplicate_dir.sh"
-    case "4":
-        return "./pkg/scripts/find_data_dir.sh"
-    case "5":
-        return "./pkg/scripts/mk_mock_dir.sh"
-    case "6":
-        return "./pkg/scripts/rm_mock_dir.sh"
-    default:
-        return ""
-    }
+func (dw *DirWizard) getScriptName(choice string) string {
+	switch choice {
+	case "1":
+		return "./pkg/scripts/rename_dir.sh"
+	case "2":
+		return "./pkg/scripts/check_dir.sh"
+	case "3":
+		return "./pkg/scripts/find_duplicate_dir.sh"
+	case "4":
+		return "./pkg/scripts/find_data_dir.sh"
+	case "5":
+		return "./pkg/scripts/mk_mock_dir.sh"
+	case "6":
+		return "./pkg/scripts/rm_mock_dir.sh"
+	default:
+		return ""
+	}
 }
 
-
-func waitForContinue(reader *bufio.Reader) {
-    fmt.Println("\nPress Enter to continue...")
-    _, err := reader.ReadString('\n')
-    if err != nil {
-        fmt.Println("Error reading input:", err)
-    }
-    clearScreen()
-    displayHeader()
+func (dw *DirWizard) waitForContinue() {
+	fmt.Println("\nPress Enter to continue...")
+	if _, err := dw.reader.ReadString('\n'); err != nil {
+		fmt.Println("Error reading input:", err)
+	}
+	dw.clearScreen()
+	dw.displayHeader()
 }
