@@ -54,8 +54,6 @@ func displayHeader() {
 |         Version 0.1.0                         |
 |         © 2024 Kevin Liu. All Rights Reserved |
 =================================================
-Welcome to DirWizard, your go-to tool for efficient
-directory management and data organization.
 
 `
     fmt.Print(header)
