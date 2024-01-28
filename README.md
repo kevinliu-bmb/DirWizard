@@ -8,11 +8,11 @@
 - **Check Compliance:** Verify directory naming conventions and log any non-compliant directory names.
 - **Find Duplicates:** Identify and log duplicate directories based on file and directory names.
 - **Search Data Paths:** Locate and log directories containing specific types of data files, including the count of each data type.
-- **Generate Mock File Structure:** For testing purposes, create a mock file structure with various directory and file names.
-- **Clear Mock File Structure:** Remove the generated mock file structure.
 
 ## Recent Updates
 
+- **Reorganized Project Structure:** The project has been restructured for better organization and maintainability. Shell scripts are now located in the `pkg/scripts` directory.
+- **Absolute Path Display:** The CLI now displays absolute paths for directories to provide clearer context to the user.
 - **Bug Fix:** Resolved an issue where the CLI did not prompt the user to hit Enter after invalid selections, improving the overall user interaction flow.
 - **Enhanced Data Path Search:** The tool now logs the type and count of data files in each found directory, providing more detailed insights into the data distribution.
 
@@ -36,14 +36,13 @@
 2. **Build the Project:**
 
    ```bash
-   go build -o DirWizard
+   go build -o ./build/dirwizard-0.1.0 ./cmd/dirwizard
    ```
 
 3. **Run the Program:**
 
    ```bash
-   cd ./DirWizard
-   ./DirWizard
+   ./build/dirwizard-0.1.0
    ```
 
 ### Usage

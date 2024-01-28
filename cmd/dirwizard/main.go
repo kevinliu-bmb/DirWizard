@@ -21,12 +21,21 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
 
+var workingDir string
+
 func main() {
     clearScreen()
+    var err error
+    workingDir, err = filepath.Abs(".")
+    if err != nil {
+        fmt.Println("Error getting current directory:", err)
+        return
+    }
     displayHeader()
     processUserInput()
 }
@@ -49,13 +58,14 @@ func executeCommand(name string, arg ...string) {
 }
 
 func displayHeader() {
-    header := `=================================================
+    header := fmt.Sprintf(`=================================================
 |         DirWizard - Directory Management      |
 |         Version 0.1.0                         |
 |         © 2024 Kevin Liu. All Rights Reserved |
 =================================================
+Working Directory: %s
 
-`
+`, filepath.Clean(workingDir))
     fmt.Print(header)
 }
 
@@ -69,6 +79,8 @@ func displayMenu() {
 
 (5) - [dev test] Generate Mock File Structure
 (6) - [dev test] Clear Mock File Structure
+
+(7) - Change Working Directory
 
 (0) - Exit
 
@@ -105,11 +117,32 @@ func readUserChoice(reader *bufio.Reader) (string, error) {
 }
 
 func executeChoice(choice string, reader *bufio.Reader) {
+    if choice == "7" {
+        workingDir = getWorkingDirectory()
+        clearScreen()
+        displayHeader()
+        return
+    }
     if !runScript(choice) {
         fmt.Println("\nInvalid choice. Please try again.")
     }
 
     waitForContinue(reader)
+}
+
+func getWorkingDirectory() string {
+    reader := bufio.NewReader(os.Stdin)
+    fmt.Print("Enter the directory path to work on: ")
+    dirPath, _ := reader.ReadString('\n')
+    dirPath = strings.TrimSpace(dirPath)
+
+    // Convert the provided directory path to an absolute path
+    absDirPath, err := filepath.Abs(dirPath)
+    if err != nil {
+        fmt.Println("Error converting to absolute path:", err)
+        return dirPath // fallback to the original input
+    }
+    return absDirPath
 }
 
 func runScript(choice string) bool {
@@ -118,28 +151,29 @@ func runScript(choice string) bool {
         return false
     }
 
-    executeCommand("bash", scriptName)
+    executeCommand("bash", scriptName, workingDir)
     return true
 }
 
 func getScriptName(choice string) string {
     switch choice {
     case "1":
-        return "./src/rename_directories.sh"
+        return "./pkg/scripts/rename_dir.sh"
     case "2":
-        return "./src/check_compliance.sh"
+        return "./pkg/scripts/check_dir.sh"
     case "3":
-        return "./src/find_duplicates.sh"
+        return "./pkg/scripts/find_duplicate_dir.sh"
     case "4":
-        return "./src/search_data_paths.sh"
+        return "./pkg/scripts/find_data_dir.sh"
     case "5":
-        return "./src/generate_mock_structure.sh"
+        return "./pkg/scripts/mk_mock_dir.sh"
     case "6":
-        return "./src/clear_mock_structure.sh"
+        return "./pkg/scripts/rm_mock_dir.sh"
     default:
         return ""
     }
 }
+
 
 func waitForContinue(reader *bufio.Reader) {
     fmt.Println("\nPress Enter to continue...")

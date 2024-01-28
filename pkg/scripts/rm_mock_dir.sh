@@ -16,9 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with DirWizard.  If not, see <http://www.gnu.org/licenses/>.
 
-BASE_DIR=".."
+# Use the first argument as BASE_DIR, default to current directory if not provided
+BASE_DIR="${1:-.}"
 
 # delete the folder mock_directory
-rm -rf $BASE_DIR/mock_directory
+rm -rf "$BASE_DIR/mock_dir"
 echo
 echo "[Mock directory deleted successfully]"

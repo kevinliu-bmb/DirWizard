@@ -16,8 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with DirWizard.  If not, see <http://www.gnu.org/licenses/>.
 
-BASE_DIR=".."
-LOG_DIR="./log"
+# Use the first argument as BASE_DIR, default to current directory if not provided
+BASE_DIR="${1:-.}"
+LOG_DIR="${BASE_DIR}/dirwizard_log"
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 LOG_FILE="${LOG_DIR}/rename_log_${TIMESTAMP}.txt"
 
